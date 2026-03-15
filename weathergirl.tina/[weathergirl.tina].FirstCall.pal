@@ -1,0 +1,51 @@
+Please look for any text in the diary that asks about the weather or outfit suggestions. 
+If none is found, casually chat based on the diary content. If such text is found, then:
+$$await::{
+
+	$$await::{
+		let $g
+		if $$User.Gender==0, then $g='a gentle man'
+		if $$User.Gender==1, then $g='female'
+		if $$User.Gender==2, then $g='male'
+		
+		let $r=('$$User.AgeRange'=='0')?'middle-aged person':'about $$User.AgeRange years old'
+		
+		$$learn::{[user description]: $g, $r}
+	}
+
+	
+	$$await::{		
+		###
+		Here is the temperature trend throughout the day on $$CurrentPage.Date, with format of (hour,temperature) : 
+		$$Weather.GetTemperatureAt($$CurrentPage.Date,$$User.Position)
+	
+		Here is the rainfall trend throughout the day on $$CurrentPage.Date, with format of (hour,probability,rainfall). 
+		The range of rainfall is 0 (no rain), 1 (light rain), 2 (moderate rain), 3 (heavy rain), 4 (torrential rain).
+		$$Weather.GetRainfallAt($$CurrentPage.Date,$$User.Position)
+
+		Please provide a [weather summary] within 200 words. 
+		(if there is heavy rain, please emphasize it. Also, when describing rainfall, use words instead of numbers), 
+		(please include a brief trend of the temperature changes, and represent the temperatures with Arabic numerals instead of English.)
+		
+		then add a line break, followed by [outfit suggestions] which is based on the [weather summary] and [user description].	
+		(do not include any user descriptions in the outfit suggestions)
+	
+		###
+		let $w = the content of [weather summary].
+		let $d = the content of [outfit suggestion].
+		
+		$$print::{$w\n\n$d\n\n}
+		
+		###
+		let $f=('$$User.Language'=='en')?'Western face':'Oriental face'
+		let	$ggg = the content of [user description].
+		let $ddd = the content of [outfit suggestions].
+		
+		$$print::{
+			$$mcpReplicate.Run({
+				model=vectradmin/sdxl-v-transparent,
+				prompt=Full body(from head to toe), $f $ggg, $ddd
+				})
+		}
+	}
+}

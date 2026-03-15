@@ -1,0 +1,80 @@
+Please refer to the diary entry written by the user.
+
+If the user’s latest reply mentions a weather-related topic, then:
+$$await::{
+	please reference the following information:
+	
+	Here is the temperature trend throughout the day on $$CurrentPage.Date, with format of (hour,temperature) : 
+	$$Weather.GetTemperatureAt($$CurrentPage.Date,$$User.Position)
+
+	Here is the rainfall trend throughout the day on $$CurrentPage.Date, with format of (hour,probability,rainfall).
+	The range of rainfall is 0 (no rain), 1 (light rain), 2 (moderate rain), 3 (heavy rain), 4 (torrential rain).
+	$$Weather.GetRainfallAt($$CurrentPage.Date,$$User.Position)
+	
+	The user replies `$$CurrentPage.Reply.Last`
+	please response for this.
+	
+	$$print::{$r} where $r is replaced with the response.
+}
+
+Otherwise, if the latest reply mentions changing image or cloth style, then:
+$$await::{
+	
+	$$await::{
+		let $g
+		if $$User.Gender==0, then $g='a gentle man'
+		if $$User.Gender==1, then $g='female'
+		if $$User.Gender==2, then $g='male'
+		
+		let $r=('$$User.AgeRange'=='0')?'middle-aged person':'about $$User.AgeRange years old'
+		
+		$$learn::{[user description]: $g, $r}
+	}
+
+	
+	$$await::{
+		//###
+		//please reference the following information:
+		//The diary content: $$CurrentPage.Text
+		please reference the diary entry.
+
+		###
+		Here is the temperature trend throughout the day on $$CurrentPage.Date, with format of (hour,temperature) : 
+		$$Weather.GetTemperatureAt($$CurrentPage.Date,$$User.Position)
+	
+		Here is the rainfall trend throughout the day on $$CurrentPage.Date, with format of (hour,probability,rainfall).
+		The range of rainfall is 0 (no rain), 1 (light rain), 2 (moderate rain), 3 (heavy rain), 4 (torrential rain).
+		$$Weather.GetRainfallAt($$CurrentPage.Date,$$User.Position)
+
+		Please provide a [weather summary] within 200 words 
+		(if there is heavy rain, please emphasize it. Also, when describing rainfall, use words instead of numbers), 
+		(please include a brief trend of the temperature changes, and represent the temperatures with Arabic numerals instead of English.)
+		
+		then provide [outfit suggestions] which is based on the [weather summary] and [user description].
+		(do not include any user descriptions in the outfit suggestions)
+
+		let $d = the content of [outfit suggestion].
+		$$print::{$d\n}
+		
+
+		###
+		let $f=('$$User.Language'=='en')?'Western face':'Oriental face'
+		let $ggg = the content of [user description].
+		let $ddd = the content of [outfit suggestions].
+		
+		$$print::{
+			$$mcpReplicate.Run({
+				model=vectradmin/sdxl-v-transparent,
+				prompt=Full body(from head to toe), $f $ggg, $ddd
+				})
+		}
+	}
+}
+
+Otherwise, 
+$$await::{
+	The user replies `$$CurrentPage.Reply.Last`
+	please respond to this (expressing thoughts or feelings)
+	
+	$$print::{$r}，$r is the response.
+}
